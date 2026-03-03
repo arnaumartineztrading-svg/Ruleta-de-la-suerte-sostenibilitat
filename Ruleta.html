@@ -385,7 +385,7 @@
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="Principal.html">PÀGINA PRINCIPAL</a>
                 <a href="#" onclick="irAPalabrasDesdeMenu(event)">PARAULES</a>
-                <a href="Game.html">JOC (Última paraula)</a>
+                <a href="#" onclick="irAGameDesdeMenu(event)">JOC (Última paraula)</a>
                 <a href="Ruleta.html">RULETA</a>
                 <a href="Clasificacion.html">CLASSIFICACIÓ</a>
                 <a href="Normas.html">NORMES</a>
@@ -855,6 +855,13 @@
             event.preventDefault();
             sessionStorage.setItem('mostrarRecordatorio', 'true');
             window.location.href = 'Palabras.html';
+        }
+
+        function irAGameDesdeMenu(event) {
+            event.preventDefault();
+            // Guardar l'equip actual perquè Game.html el puga recuperar
+            sessionStorage.setItem('equipSeleccionat', currentPlayer.toString());
+            window.location.href = 'Game.html';
         }
     </script>
 </div>
