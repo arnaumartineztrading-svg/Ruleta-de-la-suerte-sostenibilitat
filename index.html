@@ -7,146 +7,167 @@
     <style>
         body {
             margin: 0;
-            background: #e8f5e9;
+            background: #1a1a1a;
             overflow: hidden;
             font-family: system-ui, -apple-system, sans-serif;
-            color: #333;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #2e7d32;
-            margin-bottom: 30px;
-        }
-
-        /* Rectángulo de NORMAS arriba */
-        .normas-container {
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            margin-bottom: 30px;
+            height: 100vh;
+            position: relative;
         }
 
-        .normas-card {
-            background: white;
-            border: 3px solid #2e7d32;
-            border-radius: 12px;
-            padding: 25px 60px;
+        /* Fondo de ruleta animada */
+        .wheel-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vmin;
+            height: 70vmin;
+            opacity: 0.25;
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Título */
+        h1 {
+            position: relative;
+            z-index: 10;
+            color: white;
+            font-size: 3rem;
             text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Botón Jugar */
+        .play-button {
+            position: relative;
+            z-index: 10;
+            padding: 20px 60px;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            border: none;
+            border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            min-width: 300px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .normas-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            background: #e8f5e9;
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(76, 175, 80, 0.6);
         }
 
-        .normas-card h2 {
-            color: #2e7d32;
-            margin: 10px 0 5px 0;
-            font-size: 1.5rem;
-        }
-
-        .normas-card p {
-            color: #666;
-            margin: 0;
-        }
-
-        /* Grid de 4 cuadrados debajo */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .menu-card {
-            background: white;
-            border: 3px solid #2e7d32;
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            background: #e8f5e9;
-        }
-
-        .menu-card h2 {
-            color: #2e7d32;
-            margin: 10px 0 5px 0;
-            font-size: 1.3rem;
-        }
-
-        .menu-card p {
-            color: #666;
-            margin: 0;
-            font-size: 0.9rem;
-        }
-
-        .icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+        .play-button:active {
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
+    <!-- Ruleta de fondo -->
+    <canvas id="wheel-background" class="wheel-container" width="1000" height="1000"></canvas>
+
     <h1>Ruleta de la suerte - Sostenibiltat</h1>
+    <button class="play-button" onclick="window.location.href='Principal.html'">JUGAR</button>
 
-    <!-- Rectángulo de NORMAS arriba -->
-    <div class="normas-container">
-        <a href="Normas.html" style="text-decoration: none;">
-            <div class="normas-card">
-                <div class="icon">📋</div>
-                <h2>NORMES</h2>
-                <p>Regles del joc</p>
-            </div>
-        </a>
-    </div>
+    <script>
+        // ======================
+        // SEGMENTOS (20) - Mismos que Ruleta.html
+        // ======================
+        const baseSegments = [
+            "150",
+            "50",
+            "100",
+            "Pierdes turno",
+            "200",
+            "50",
+            "Quiebra",
+            "100",
+            "500",
+            "Pierdes turno"
+        ];
+        const segments = baseSegments.concat(baseSegments.slice());
 
-    <!-- 4 cuadrados debajo -->
-    <div class="menu-grid">
-        <a href="Clasificacion.html" style="text-decoration: none;">
-            <div class="menu-card">
-                <div class="icon">🏆</div>
-                <h2>CLASSIFICACIÓ</h2>
-                <p>Gestiona els equips i puntuacions</p>
-            </div>
-        </a>
+        // Colors - Mismos que Ruleta.html
+        const baseColors = [
+            "#9C27B0", // 150 - purple
+            "#F3D23A", // 50 - yellow
+            "#2DBE6C", // 100 - green
+            "#D43B3B", // Pierdes turno - red
+            "#FF9800", // 200 - orange
+            "#F3D23A", // 50 - yellow
+            "#000000", // Quiebra - black
+            "#2DBE6C", // 100 - green
+            "#FF9800", // 500 - orange
+            "#D43B3B"  // Pierdes turno - red
+        ];
+        const colors = baseColors.concat(baseColors.slice());
 
-        <a href="Palabras.html" style="text-decoration: none;">
-            <div class="menu-card">
-                <div class="icon">🔤</div>
-                <h2>PARAULES</h2>
-                <p>Llista de paraules per endevinar</p>
-            </div>
-        </a>
+        // ======================
+        // CANVAS
+        // ======================
+        const canvas = document.getElementById("wheel-background");
+        const ctx = canvas.getContext("2d");
+        const size = canvas.width;
+        const center = size / 2;
+        const radius = center - 20;
 
-        <a href="Ruleta.html" style="text-decoration: none;">
-            <div class="menu-card">
-                <div class="icon">🎡</div>
-                <h2>RULETA</h2>
-                <p>Gira la ruleta y gana puntos</p>
-            </div>
-        </a>
+        let currentAngle = 0;
 
-        <a href="Game.html" style="text-decoration: none;">
-            <div class="menu-card">
-                <div class="icon">🎮</div>
-                <h2>JOC</h2>
-                <p>Última paraula</p>
-            </div>
-        </a>
-    </div>
+        function drawWheel(angle) {
+            ctx.clearRect(0, 0, size, size);
+            const slice = (Math.PI * 2) / segments.length;
+
+            ctx.save();
+            ctx.translate(center, center);
+            ctx.rotate(angle);
+
+            for (let i = 0; i < segments.length; i++) {
+                const start = i * slice;
+                const end = start + slice;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, start, end);
+                ctx.closePath();
+                ctx.fillStyle = colors[i];
+                ctx.fill();
+                ctx.strokeStyle = "#fff3";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(start + slice / 2);
+                ctx.fillStyle = "white";
+                ctx.font = "bold 30px Arial";
+                ctx.textAlign = "right";
+                ctx.fillText(segments[i], radius - 30, 10);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        // Animación de rotación lenta continua
+        function animate() {
+            currentAngle += 0.002; // Rotación lenta
+            drawWheel(currentAngle);
+            requestAnimationFrame(animate);
+        }
+
+        // Iniciar animación
+        animate();
+    </script>
 </body>
 </html>
