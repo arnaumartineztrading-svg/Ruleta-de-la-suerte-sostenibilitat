@@ -173,11 +173,9 @@
         window.location.href='Ruleta.html';
     }
     // Verificar si venimos con el flag para mostrar el overlay
-    if (sessionStorage.getItem('mostrarRecordatorio') === 'true') {
-        const overlay = document.getElementById('overlay-recordatorio');
-        overlay.classList.add('activo');
-        sessionStorage.removeItem('mostrarRecordatorio');
-    }
+    // Se muestra siempre al entrar a Palabras.html, venga de donde venga
+    const overlay = document.getElementById('overlay-recordatorio');
+    overlay.classList.add('activo');
 
     // Lista de frases disponibles con sus pistas
     const frases = [

@@ -1,101 +1,152 @@
-<!DOCTYPE html>
-<html lang="ca">
+<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <title>Pàgina Principal - Gestió i Estratègia Interna</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Ruleta de la suerte - Sostenibiltat</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             background: #e8f5e9;
-            margin: 0; padding: 20px;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #333;
+            padding: 20px;
         }
 
         h1 {
-            color: #2e7d32;
-            margin-bottom: 40px;
             text-align: center;
+            color: #2e7d32;
+            margin-bottom: 30px;
         }
-        .grid {
+
+        /* Rectángulo de NORMAS arriba */
+        .normas-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .normas-card {
+            background: white;
+            border: 3px solid #2e7d32;
+            border-radius: 12px;
+            padding: 25px 60px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-width: 300px;
+        }
+
+        .normas-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            background: #e8f5e9;
+        }
+
+        .normas-card h2 {
+            color: #2e7d32;
+            margin: 10px 0 5px 0;
+            font-size: 1.5rem;
+        }
+
+        .normas-card p {
+            color: #666;
+            margin: 0;
+        }
+
+        /* Grid de 4 cuadrados debajo */
+        .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
+            gap: 20px;
             max-width: 600px;
             margin: 0 auto;
         }
-        .cuadro {
+
+        .menu-card {
             background: white;
-            border: 4px solid #2e7d32;
-            border-radius: 15px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: 700;
-            color: #2e7d32;
-            height: 150px;
-            user-select: none;
-            box-shadow: 3px 3px 5px #a5d6a7;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            border: 3px solid #2e7d32;
+            border-radius: 12px;
+            padding: 25px;
             text-align: center;
-            padding: 10px;
-        }
-        .cuadro:hover {
-            background-color: #a5d6a7;
-            color: white;
-        }
-        
-        .cuadro-normes {
-            grid-column: 1 / -1;
-            background: white;
-            border: 4px solid #2e7d32;
-            border-radius: 15px;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: 700;
-            color: #2e7d32;
-            height: 100px;
-            user-select: none;
-            box-shadow: 3px 3px 5px #a5d6a7;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            text-align: center;
-            padding: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .cuadro-normes:hover {
-            background-color: #a5d6a7;
-            color: white;
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            background: #e8f5e9;
+        }
+
+        .menu-card h2 {
+            color: #2e7d32;
+            margin: 10px 0 5px 0;
+            font-size: 1.3rem;
+        }
+
+        .menu-card p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
+    <h1>Ruleta de la suerte - Sostenibiltat</h1>
 
-<h1>GESTIÓ I ESTRATÈGIA INTERNA</h1>
+    <!-- Rectángulo de NORMAS arriba -->
+    <div class="normas-container">
+        <a href="Normas.html" style="text-decoration: none;">
+            <div class="normas-card">
+                <div class="icon">📋</div>
+                <h2>NORMES</h2>
+                <p>Regles del joc</p>
+            </div>
+        </a>
+    </div>
 
-<div class="grid">
-    <div class="cuadro" onclick="irAPalabras()">PARAULES</div>
-    <div class="cuadro" onclick="window.location.href='Game.html'">JOC</div>
-    <div class="cuadro" onclick="irARuleta()">RULETA</div>
-    <div class="cuadro" onclick="window.location.href='Clasificacion.html'">CLASSIFICACIÓ</div>
-    <div class="cuadro-normes" onclick="window.location.href='Normas.html'">📜 NORMES</div>
-</div>
+    <!-- 4 cuadrados debajo -->
+    <div class="menu-grid">
+        <a href="Clasificacion.html" style="text-decoration: none;">
+            <div class="menu-card">
+                <div class="icon">🏆</div>
+                <h2>CLASSIFICACIÓ</h2>
+                <p>Gestiona els equips i puntuacions</p>
+            </div>
+        </a>
 
-<script>
-    function navegar(pagina){
-        if(pagina) window.location.href = pagina;
-    }
+        <a href="Palabras.html" style="text-decoration: none;">
+            <div class="menu-card">
+                <div class="icon">🔤</div>
+                <h2>PARAULES</h2>
+                <p>Llista de paraules per endevinar</p>
+            </div>
+        </a>
 
-    function irAPalabras() {
-        sessionStorage.setItem('mostrarRecordatorio', 'true');
-        window.location.href = 'Palabras.html';
-    }
-    function irARuleta(){
-        sessionStorage.setItem('mostrarRecordatorioRuleta','true');
-        window.location.href = 'Ruleta.html';
-    }
-</script>
+        <a href="Ruleta.html" style="text-decoration: none;">
+            <div class="menu-card">
+                <div class="icon">🎡</div>
+                <h2>RULETA</h2>
+                <p>Gira la ruleta y gana puntos</p>
+            </div>
+        </a>
 
+        <a href="Game.html" style="text-decoration: none;">
+            <div class="menu-card">
+                <div class="icon">🎮</div>
+                <h2>JOC</h2>
+                <p>Última paraula</p>
+            </div>
+        </a>
+    </div>
 </body>
 </html>

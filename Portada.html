@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Ruleta de la suerte - Sostenibiltat</title>
+    <style>
+        body {
+            margin: 0;
+            background: #1a1a1a;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Fondo de ruleta animada */
+        .wheel-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vmin;
+            height: 70vmin;
+            opacity: 0.25;
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Título */
+        h1 {
+            position: relative;
+            z-index: 10;
+            color: white;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Botón Jugar */
+        .play-button {
+            position: relative;
+            z-index: 10;
+            padding: 20px 60px;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(76, 175, 80, 0.6);
+        }
+
+        .play-button:active {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Ruleta de fondo -->
+    <canvas id="wheel-background" class="wheel-container" width="1000" height="1000"></canvas>
+
+    <h1>Ruleta de la suerte - Sostenibiltat</h1>
+    <button class="play-button" onclick="window.location.href='index.html'">JUGAR</button>
+
+    <script>
+        // ======================
+        // SEGMENTOS (20) - Mismos que Ruleta.html
+        // ======================
+        const baseSegments = [
+            "150",
+            "50",
+            "100",
+            "Pierdes turno",
+            "200",
+            "50",
+            "Quiebra",
+            "100",
+            "500",
+            "Pierdes turno"
+        ];
+        const segments = baseSegments.concat(baseSegments.slice());
+
+        // Colors - Mismos que Ruleta.html
+        const baseColors = [
+            "#9C27B0", // 150 - purple
+            "#F3D23A", // 50 - yellow
+            "#2DBE6C", // 100 - green
+            "#D43B3B", // Pierdes turno - red
+            "#FF9800", // 200 - orange
+            "#F3D23A", // 50 - yellow
+            "#000000", // Quiebra - black
+            "#2DBE6C", // 100 - green
+            "#FF9800", // 500 - orange
+            "#D43B3B"  // Pierdes turno - red
+        ];
+        const colors = baseColors.concat(baseColors.slice());
+
+        // ======================
+        // CANVAS
+        // ======================
+        const canvas = document.getElementById("wheel-background");
+        const ctx = canvas.getContext("2d");
+        const size = canvas.width;
+        const center = size / 2;
+        const radius = center - 20;
+
+        let currentAngle = 0;
+
+        function drawWheel(angle) {
+            ctx.clearRect(0, 0, size, size);
+            const slice = (Math.PI * 2) / segments.length;
+
+            ctx.save();
+            ctx.translate(center, center);
+            ctx.rotate(angle);
+
+            for (let i = 0; i < segments.length; i++) {
+                const start = i * slice;
+                const end = start + slice;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, start, end);
+                ctx.closePath();
+                ctx.fillStyle = colors[i];
+                ctx.fill();
+                ctx.strokeStyle = "#fff3";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(start + slice / 2);
+                ctx.fillStyle = "white";
+                ctx.font = "bold 30px Arial";
+                ctx.textAlign = "right";
+                ctx.fillText(segments[i], radius - 30, 10);
+                ctx.restore();
+            }
+
+            ctx.restore();
+        }
+
+        // Animación de rotación lenta continua
+        function animate() {
+            currentAngle += 0.002; // Rotación lenta
+            drawWheel(currentAngle);
+            requestAnimationFrame(animate);
+        }
+
+        // Iniciar animación
+        animate();
+    </script>
+</body>
+</html>

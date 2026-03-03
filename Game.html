@@ -377,11 +377,11 @@
 <div class="controls">
     <div style="margin-bottom: 10px; position: relative; display: flex; justify-content: center; align-items: center; gap: 10px;">
         <div id="mensaje-error-letra"></div>
-        <input type="text" id="input-letra" maxlength="1" placeholder="?" autofocus>
+        <input type="text" id="input-letra" maxlength="1" placeholder="?" autofocus autocomplete="off">
         <button onclick="comprovarLetra()">Intentar Lletra (Cost: 50)</button>
     </div>
     <div style="position: relative; margin-bottom: 55px;">
-        <input type="text" id="input-frase" placeholder="Introdueix la frase o paraula">
+        <input type="text" id="input-frase" placeholder="Introdueix la frase o paraula" autocomplete="off">
         <button id="btn-intentar-frase" onclick="intentarFrase()">Intentar Frase (Cost: 200)</button>
         <div id="mensaje-error-frase"></div>
     </div>
