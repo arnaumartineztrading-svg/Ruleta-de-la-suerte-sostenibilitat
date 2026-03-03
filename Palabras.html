@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8" />
+    <title>Palabras a escollir</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin:0; padding: 20px;
+        }
+        .nav-menu {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10000;
+        }
+        .hamburger-btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 40px;
+            height: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .hamburger-btn span {
+            width: 100%;
+            height: 3px;
+            background: #2e7d32;
+            border-radius: 2px;
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 45px;
+            left: 0;
+            background: white;
+            border: 2px solid black;
+            border-radius: 8px;
+            min-width: 220px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 14px;
+            border-bottom: 1px solid black;
+            transition: background-color 0.3s ease;
+        }
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+        .dropdown-menu a:hover {
+            background-color: #e8f5e9;
+        }
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .lista-palabras {
+            font-size: 14px;
+            color: #1b5e20;
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .palabra {
+            cursor: pointer;
+            border: 1px solid #1b5e20;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background: white;
+            text-transform: uppercase;
+            user-select: none;
+            transition: background-color 0.3s ease;
+        }
+        .palabra:hover {
+            background-color: #a5d6a7;
+            color: white;
+        }
+
+        /* Overlay para el mensaje de recordatorio */
+        #overlay-recordatorio {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #overlay-recordatorio.activo {
+            display: flex;
+        }
+        #mensaje-recordatorio {
+            background: white;
+            border-radius: 15px;
+            padding: 40px 50px;
+            text-align: center;
+            box-shadow: 0 0 20px #4caf50cc;
+            max-width: 90%;
+            color: #2e7d32;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        #mensaje-recordatorio button {
+            margin-top: 30px;
+            background: #2e7d32;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        #mensaje-recordatorio button:hover {
+            background: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+<div class="nav-menu">
+    <button class="hamburger-btn" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="index.html">PÁGINA PRINCIPAL</a>
+        <a href="Palabras.html">PARAULES</a>
+        <a href="Game.html">JOC (Última paraula)</a>
+        <a href="#" onclick="irARuletaDesdeMenu(event)">RULETA</a>
+        <a href="Clasificacion.html">CLASSIFICACIÓ</a>
+        <a href="Normas.html">NORMES</a>
+    </div>
+</div>
+
+<h1>Paraules disponibles per jugar</h1>
+
+<div class="lista-palabras" id="lista-palabras"></div>
+
+<!-- Overlay para el mensaje de recordatorio -->
+<div id="overlay-recordatorio">
+    <div id="mensaje-recordatorio">
+        <div>❄️ RECORDA: Congela la pantalla! ❄️</div>
+        <div style="font-size: 0.9rem; margin-top: 15px; font-weight: normal;">Els participants no han de veure les paraules disponibles.</div>
+        <button onclick="cerrarRecordatorioYMostrarPalabras()">Entesos, continuar</button>
+    </div>
+</div>
+
+<script>
+    function irARuletaDesdeMenu(event){
+        event.preventDefault();
+        sessionStorage.setItem('mostrarRecordatorioRuleta','true');
+        window.location.href='Ruleta.html';
+    }
+    // Verificar si venimos con el flag para mostrar el overlay
+    if (sessionStorage.getItem('mostrarRecordatorio') === 'true') {
+        const overlay = document.getElementById('overlay-recordatorio');
+        overlay.classList.add('activo');
+        sessionStorage.removeItem('mostrarRecordatorio');
+    }
+
+    // Lista de frases disponibles con sus pistas
+    const frases = [
+        { frase: 'CRITERIS ASG', pista: 'Sigles que divideixen la sostenibilitat en tres calaixos: Ambiental, Social i Governança.' },
+        { frase: 'MODEL CAME', pista: 'El "pla d\'atac" que serveix per Corregir, Afrontar, Mantenir i Explotar després d\'una anàlisi.' },
+        { frase: 'TRIPLE COMPTE DE RESULTATS', pista: 'La llibreta on l\'empresa apunta no només el benefici econòmic, sinó també l\'impacte social i ambiental.' },
+        { frase: 'AUDITORIA', pista: 'Com un examen corregit pel "profe": una persona externa verifica si el que diu l\'empresa és veritat.' },
+        { frase: 'PLA DE SOSTENIBILITAT', pista: 'El full de ruta o "GPS" que marca els objectius i accions per ser una empresa responsable.' },
+        { frase: 'FILTRE NEGATIU', pista: 'El "veto" o prohibició d\'invertir en sectors com les armes, el tabac o el joc.' },
+        { frase: 'FILTRE POSITIU', pista: 'Seleccionar i premiar les empreses que tenen les millors pràctiques sostenibles del seu sector.' },
+        { frase: 'INVERSIO SOCIALMENT RESPONSABLE', pista: 'Manera d\'invertir que busca el rendiment econòmic però també el benestar del planeta i la gent. "Votar amb la cartera".' },
+        { frase: 'ENERGIA SOLAR', pista: 'Font renovable que utilitzen empreses com Apple per fer que les seves oficines siguin neutres en carboni.' },
+        { frase: 'RECICLATGE EFICAÇ', pista: 'Acció ambiental (la "A" d\'ASG) que consisteix a transformar els residus en nous materials.' },
+        { frase: 'CONSERVACIÓ DE L\'AIGUA', pista: 'Gestió responsable de la "A" ambiental, vital en sectors com el del cafè o l\'agricultura.' },
+        { frase: 'TRANSPORT SOSTENIBLE', pista: 'Ús de vehicles no contaminants (com les bicicletes elèctriques de l\'exemple CAME) per reduir la petjada de carboni.' },
+        { frase: 'CADENA DE VALOR', pista: 'El camí complet del producte; des del pagès que cultiva el cafè fins al client que se\'l beu a la botiga.' },
+        { frase: 'COMISSIONS DE SOSTENIBILITAT', pista: 'Els "vigilants" interns de les empreses grans que s\'encarreguen que la sostenibilitat no sigui només màrqueting.' },
+        { frase: 'GOVERNANÇA', pista: 'Té a veure amb la transparència, l\'honestedat i que els sous dels directius siguin públics.' },
+        { frase: 'DIAGNÒSTIC', pista: 'La fase inicial del Pla de Sostenibilitat on l\'empresa mira "on està" abans de decidir on vol arribar.' }
+    ];
+
+    const listaDiv = document.getElementById('lista-palabras');
+
+    frases.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'palabra';
+        div.textContent = item.frase;
+        div.title = 'Jugar amb "' + item.frase + '"';
+        div.onclick = () => {
+            // Guardamos la frase y la pista en sessionStorage para uso en Game.html
+            sessionStorage.setItem('ultimaFrase', item.frase);
+            sessionStorage.setItem('ultimaPista', item.pista);
+            window.location.href = 'Game.html';
+        };
+        listaDiv.appendChild(div);
+    });
+
+    function navegar(pagina) {
+        if (pagina) window.location.href = pagina;
+    }
+    
+    function toggleMenu() {
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('active');
+    }
+    
+    // Cerrar menú si se hace click fuera de él
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('dropdownMenu');
+        const btn = document.querySelector('.hamburger-btn');
+        if (!menu.contains(event.target) && !btn.contains(event.target)) {
+            menu.classList.remove('active');
+        }
+    });
+
+    function cerrarRecordatorio() {
+        const overlay = document.getElementById('overlay-recordatorio');
+        overlay.classList.remove('activo');
+    }
+
+    function cerrarRecordatorioYMostrarPalabras() {
+        cerrarRecordatorio();
+        // Mostrar la lista de palabras
+        document.getElementById('lista-palabras').style.display = 'flex';
+    }
+
+</script>
+
+</body>
+</html>

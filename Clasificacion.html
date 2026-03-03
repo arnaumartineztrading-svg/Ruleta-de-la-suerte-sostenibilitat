@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8" />
+    <title>Classificació d'Equips</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin: 0; padding: 20px;
+        }
+        .nav-menu {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10000;
+        }
+        .hamburger-btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 40px;
+            height: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .hamburger-btn span {
+            width: 100%;
+            height: 3px;
+            background: #2e7d32;
+            border-radius: 2px;
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 45px;
+            left: 0;
+            background: white;
+            border: 2px solid black;
+            border-radius: 8px;
+            min-width: 220px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 14px;
+            border-bottom: 1px solid black;
+            transition: background-color 0.3s ease;
+        }
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+        .dropdown-menu a:hover {
+            background-color: #e8f5e9;
+        }
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 3px 3px 7px #a5d6a7;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #2e7d32;
+            color: white;
+            font-weight: 700;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .btn {
+            background: #2e7d32;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            margin-right: 8px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background: #1b5e20;
+        }
+        .btn-danger {
+            background: #c62828;
+        }
+        .btn-danger:hover {
+            background: #8b1919;
+        }
+        .btn-small {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        
+        .btn-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        
+        .btn-icon {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+        
+        .btn-edit {
+            background: #2196F3;
+        }
+        .btn-edit:hover {
+            background: #1976D2;
+        }
+        
+        .btn-delete {
+            background: #f44336;
+        }
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        .palabras-list {
+            margin-top: 5px;
+            padding-left: 20px;
+            color: #2e7d32;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* contenedor modal para la gestion equipos */
+        #modal-bg {
+            position: fixed;
+            top:0; left:0; width:100vw; height:100vh;
+            background: rgba(0,0,0,0.6);
+            display:none;
+            justify-content:center;
+            align-items:center;
+            z-index: 3000;
+        }
+        #modal {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 40px;
+            max-width: 400px;
+            width: 90vw;
+            box-shadow: 0 0 20px #4caf50cc;
+            text-align: center;
+        }
+        #modal h2 {
+            margin-bottom: 20px;
+            color: #2e7d32;
+        }
+        #modal input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border: 2px solid #2e7d32;
+            border-radius: 6px;
+        }
+        #modal button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+        #modal button:hover {
+            background: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav-menu">
+    <button class="hamburger-btn" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="index.html">PÀGINA PRINCIPAL</a>
+        <a href="#" onclick="irAPalabrasDesdeMenu(event)">PARAULES</a>
+        <a href="#" onclick="irAGameDesdeMenu(event)">JOC (Última paraula)</a>
+        <a href="#" onclick="irARuletaDesdeMenu(event)">RULETA</a>
+        <a href="Clasificacion.html">CLASSIFICACIÓ</a>
+        <a href="Normas.html">NORMES</a>
+    </div>
+</div>
+
+<h1>Classificació d'Equips</h1>
+
+<div style="max-width:700px; margin:0 auto 50px auto; text-align:center;">
+    <button id="btn-afegir" class="btn">Afegir Equip</button>
+</div>
+
+<table id="tabla-equipos">
+    <thead>
+    <tr>
+        <th>Equip</th>
+        <th>Punts</th>
+        <th>Paraules Resoltes</th>
+        <th></th>
+        <th>Accions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Aquí se añaden equipos -->
+    </tbody>
+</table>
+
+<!-- Modal para añadir o editar equipo -->
+<div id="modal-bg">
+    <div id="modal">
+        <h2 id="titulo-modal">Afegir Equip</h2>
+        <input type="text" id="input-nom" placeholder="Nom de l'equip" />
+        <div>
+            <button id="btn-modal-guardar">Guardar</button>
+            <button id="btn-modal-cancelar">Cancel·lar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay per recordar que cal afegir equips abans de jugar -->
+<div id="overlay-recordatorio-equip" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:4000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px; border-radius:12px; max-width:90%; text-align:center; color:#2e7d32; font-weight:700;">
+        <div style="font-size:1.2rem; margin-bottom:10px;">⚠️ Recordatori</div>
+        <div id="overlay-recordatorio-equip-text">Has d'afegir almenys 1 equip abans de poder jugar a la ruleta o al joc.</div>
+        <div style="margin-top:18px;">
+            <button onclick="document.getElementById('overlay-recordatorio-equip').style.display='none';" style="background:#2e7d32; color:white; padding:10px 16px; border-radius:8px; border:none; font-size:16px; cursor:pointer;">D'acord</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per confirmar eliminació d'equip -->
+<div id="modal-confirmacio-bg" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:5000; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px; border-radius:12px; max-width:90%; text-align:center; color:#2e7d32;">
+        <div style="font-size:1.3rem; margin-bottom:10px; font-weight:700;">⚠️ Confirmar eliminació</div>
+        <div id="modal-confirmacio-text" style="margin-bottom:20px; color:#555;"></div>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button id="btn-confirmar-eliminar" style="background:#c62828; color:white; padding:10px 20px; border-radius:8px; border:none; font-size:16px; cursor:pointer; font-weight:600;">Eliminar</button>
+            <button id="btn-cancelar-eliminar" style="background:#2e7d32; color:white; padding:10px 20px; border-radius:8px; border:none; font-size:16px; cursor:pointer; font-weight:600;">Cancel·lar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Datos guardados en localStorage para persistencia sencilla por sesión
+    let equips = JSON.parse(localStorage.getItem('equips')) || [];
+    // Guarda última palabra para que puedan añadirse en el futuro
+    // Ejemplo data estructura: {nom:'Equip 1', punts:100, paraulesResoltes:3, paraules:['FILTRE NEGATIU', ...]}
+
+    const tablaBody = document.querySelector('#tabla-equipos tbody');
+    const modalBg = document.getElementById('modal-bg');
+    const modalTitle = document.getElementById('titulo-modal');
+    const inputNom = document.getElementById('input-nom');
+    const btnGuardar = document.getElementById('btn-modal-guardar');
+    const btnCancelar = document.getElementById('btn-modal-cancelar');
+    
+    // Elements del modal de confirmació d'eliminació
+    const modalConfirmacioBg = document.getElementById('modal-confirmacio-bg');
+    const modalConfirmacioText = document.getElementById('modal-confirmacio-text');
+    const btnConfirmarEliminar = document.getElementById('btn-confirmar-eliminar');
+    const btnCancelarEliminar = document.getElementById('btn-cancelar-eliminar');
+
+    let mode = 'afegir'; // 'afegir' o 'editar'
+    let editarIndex = null;
+    let eliminarIndex = null; // Índix de l'equip a eliminar
+
+    function renderEquipos() {
+        tablaBody.innerHTML = '';
+        
+        // Crear una copia ordenada de los equipos
+        // Ordenar por paraulesResoltes (descendente) y luego por puntos (descendente)
+        const equipsOrdenats = equips.map((e, i) => ({...e, originalIndex: i}))
+            .sort((a, b) => {
+                // Primero ordenar por paraulesResoltes (más importante)
+                if ((b.paraulesResoltes || 0) !== (a.paraulesResoltes || 0)) {
+                    return (b.paraulesResoltes || 0) - (a.paraulesResoltes || 0);
+                }
+                // Si hay empate, ordenar por puntos
+                return b.punts - a.punts;
+            });
+        
+        equipsOrdenats.forEach((equip, i) => {
+            const tr = document.createElement('tr');
+            const coronaEmoji = i === 0 ? '👑 ' : '';
+            tr.innerHTML = `
+                <td>
+                    <strong>${coronaEmoji}${equip.nom}</strong>
+                </td>
+                <td>${equip.punts || 0}</td>
+                <td>${equip.paraulesResoltes || 0}</td>
+                <td style="text-align:right;">
+                    <button class="btn btn-small" onclick="toggleParaules(${equip.originalIndex}, this)">+</button>
+                </td>
+                <td>
+                    <div class="btn-actions">
+                        <button class="btn btn-icon btn-edit" onclick="editarEquip(${equip.originalIndex})" title="Editar">✏️</button>
+                        <button class="btn btn-icon btn-delete" onclick="eliminarEquip(${equip.originalIndex})" title="Eliminar">🗑️</button>
+                    </div>
+                </td>
+            `;
+            tablaBody.appendChild(tr);
+
+            // fila para mostrar palabras resueltas
+            const trParaules = document.createElement('tr');
+            trParaules.style.display = 'none';
+            trParaules.id = 'palabras-'+equip.originalIndex;
+            trParaules.innerHTML = '<td colspan="5"><ul style="margin:0; padding-left:18px;"></ul></td>';
+            tablaBody.appendChild(trParaules);
+            const ul = trParaules.querySelector('ul');
+            if(equip.paraules && equip.paraules.length > 0){
+                equip.paraules.forEach(p => {
+                    const li = document.createElement('li');
+                    li.textContent = p;
+                    ul.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'Cap paraula resolta';
+                ul.appendChild(li);
+            }
+        });
+    }
+
+    function toggleParaules(index, btn) {
+        const trParaules = document.getElementById('palabras-'+index);
+        if (trParaules.style.display === 'none') {
+            trParaules.style.display = 'table-row';
+            btn.textContent = '-';
+        } else {
+            trParaules.style.display = 'none';
+            btn.textContent = '+';
+        }
+    }
+
+    // Funció per editar un equip
+    function editarEquip(index) {
+        mode = 'editar';
+        editarIndex = index;
+        inputNom.value = equips[index].nom;
+        modalTitle.textContent = 'Editar Equip';
+        modalBg.style.display = 'flex';
+        inputNom.focus();
+    }
+
+    // Funció per mostrar el modal de confirmació d'eliminació
+    function eliminarEquip(index) {
+        eliminarIndex = index;
+        modalConfirmacioText.textContent = `Segur que vols esborrar l'equip "${equips[index].nom}"?`;
+        modalConfirmacioBg.style.display = 'flex';
+    }
+    
+    // Event listener per confirmar l'eliminació
+    btnConfirmarEliminar.onclick = function() {
+        if (eliminarIndex !== null) {
+            equips.splice(eliminarIndex, 1);
+            guardarEquipos();
+            renderEquipos();
+            modalConfirmacioBg.style.display = 'none';
+            eliminarIndex = null;
+        }
+    };
+    
+    // Event listener per cancel·lar l'eliminació
+    btnCancelarEliminar.onclick = function() {
+        modalConfirmacioBg.style.display = 'none';
+        eliminarIndex = null;
+    };
+
+    function irAPalabrasDesdeMenu(event){
+        event.preventDefault();
+        if(equips.length === 0){
+            document.getElementById('overlay-recordatorio-equip').style.display = 'flex';
+            return;
+        }
+        sessionStorage.setItem('mostrarRecordatorio','true');
+        window.location.href='Palabras.html';
+    }
+
+    function irAGameDesdeMenu(event){
+        event.preventDefault();
+        if(equips.length === 0){
+            document.getElementById('overlay-recordatorio-equip').style.display = 'flex';
+            return;
+        }
+        window.location.href='Game.html';
+    }
+
+    function irARuletaDesdeMenu(event){
+        event.preventDefault();
+        if(equips.length === 0){
+            document.getElementById('overlay-recordatorio-equip').style.display = 'flex';
+            return;
+        }
+        sessionStorage.setItem('mostrarRecordatorioRuleta','true');
+        window.location.href='Ruleta.html';
+    }
+
+    // Función para guardar localStorage
+    function guardarEquipos() {
+        localStorage.setItem('equips', JSON.stringify(equips));
+    }
+
+    // Añadir equipo
+    document.getElementById('btn-afegir').onclick = () => {
+        mode = 'afegir';
+        inputNom.value = '';
+        modalTitle.textContent = 'Afegir Equip';
+        modalBg.style.display = 'flex';
+        inputNom.focus();
+    };
+
+    btnGuardar.onclick = () => {
+        const nom = inputNom.value.trim();
+        if(nom === ''){
+            alert('El nom no pot estar buit.');
+            inputNom.focus();
+            return;
+        }
+        if(mode==='afegir'){
+            equips.push({nom: nom, punts: 200, paraulesResoltes: 0, paraules: []});
+        } else if(mode==='editar'){
+            equips[editarIndex].nom = nom;
+        }
+        guardarEquipos();
+        renderEquipos();
+        modalBg.style.display = 'none';
+    };
+
+    btnCancelar.onclick = () => {
+        modalBg.style.display = 'none';
+    };
+
+    // Inicialización del listado al cargar
+    renderEquipos();
+
+    function toggleMenu() {
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('active');
+    }
+    
+    // Cerrar menú si se hace click fuera de él
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('dropdownMenu');
+        const btn = document.querySelector('.hamburger-btn');
+        if (!menu.contains(event.target) && !btn.contains(event.target)) {
+            menu.classList.remove('active');
+        }
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8" />
+    <title>Normes del Joc</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin: 0; padding: 20px;
+        }
+        .nav-menu {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10000;
+        }
+        .hamburger-btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 40px;
+            height: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .hamburger-btn span {
+            width: 100%;
+            height: 3px;
+            background: #2e7d32;
+            border-radius: 2px;
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 45px;
+            left: 0;
+            background: white;
+            border: 2px solid black;
+            border-radius: 8px;
+            min-width: 220px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 14px;
+            border-bottom: 1px solid black;
+            transition: background-color 0.3s ease;
+        }
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+        .dropdown-menu a:hover {
+            background-color: #e8f5e9;
+        }
+        
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .normes-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 3px 3px 7px #a5d6a7;
+        }
+        
+        .norma-seccio {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f1f8e9;
+            border-radius: 10px;
+            border-left: 5px solid #2e7d32;
+        }
+        
+        .norma-seccio h2 {
+            color: #2e7d32;
+            margin-top: 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .norma-seccio ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        
+        .norma-seccio li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .destacat {
+            background: #fff3e0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .caselles-especials {
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .caselles-especials strong {
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav-menu">
+    <button class="hamburger-btn" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="index.html">PÀGINA PRINCIPAL</a>
+        <a href="#" onclick="irAPalabrasDesdeMenu(event)">PARAULES</a>
+        <a href="Game.html">JOC (Última paraula)</a>
+        <a href="Ruleta.html">RULETA</a>
+        <a href="Clasificacion.html">CLASSIFICACIÓ</a>
+        <a href="Normas.html">NORMES</a>
+    </div>
+</div>
+
+<h1>📜 Normes de "La Ruleta de la Sostenibilitat"</h1>
+
+<div class="normes-container">
+
+    <div class="norma-seccio">
+        <h2>1️⃣ Preparació i Equips</h2>
+        <ul>
+            <li>La classe es dividirà en 4 grups.</li>
+            <li>Cada grup s'ha de registrar a la secció de <strong>"CLASSIFICACIÓ"</strong>.</li>
+            <li>Tots els grups comencen amb un saldo inicial de <strong>200 punts</strong>.</li>
+        </ul>
+    </div>
+
+    <div class="norma-seccio">
+        <h2>2️⃣ Dinàmica del Torn</h2>
+        <p>El portaveu de cada grup triarà una de les tres accions següents:</p>
+        
+        <div class="destacat">
+            <strong>A) Girar la Ruleta (Sumar Punts):</strong>
+            <ul>
+                <li>L'equip gira la ruleta a la secció "RULETA".</li>
+                <li>El resultat de la ruleta indica quants punts guanyarà l'equip si encerta la següent lletra al panell de joc.</li>
+            </ul>
+        </div>
+        
+        <div class="caselles-especials">
+            <strong>Caselles especials de la ruleta:</strong>
+            <ul>
+                <li><strong>Quiebra:</strong> L'equip perd tots els punts acumulats i passa el torn.</li>
+                <li><strong>Pierdes turno:</strong> L'equip no pot jugar en aquesta ronda.</li>
+            </ul>
+        </div>
+        
+        <div class="destacat" style="background: #e3f2fd; border-left-color: #2196F3;">
+            <strong>B) Intentar Lletra (Cost Fix):</strong>
+            <ul>
+                <li>Si l'equip no vol arriscar-se amb la ruleta, pot anar directament a "JOC" i intentar una lletra.</li>
+                <li>Cada intent de lletra té un cost de <strong>50 punts</strong> (es resten automàticament del marcador).</li>
+            </ul>
+        </div>
+        
+        <div class="destacat" style="background: #f3e5f5; border-left-color: #9c27b0;">
+            <strong>C) Resoldre el Panell:</strong>
+            <ul>
+                <li>En qualsevol moment, l'equip pot intentar dir la frase completa.</li>
+                <li>Si l'encerten, reben una bonificació especial i es marquen com a guanyadors de la ronda a la classificació.</li>
+                <li><strong>Resoldre no costa punts!</strong></li>
+            </ul>
+        </div>
+
+        <div class="destacat" style="background: #fff3e0; border-left-color: #ff9800;">
+            <strong>D) Demanar Pista:</strong>
+            <ul>
+                <li>Si un equip necessita ajuda, pot demanar una pista sobre la paraula o frase.</li>
+                <li>La pista apareixerà en un quadre groc a la part superior de la pantalla.</li>
+                <li>El cost de la pista és de <strong>100 punts</strong>.</li>
+                <li><strong>Només es pot demanar una pista per paraula!</strong></li>
+            </ul>
+        </div>
+
+        <div class="caselles-especials" style="background: #ffebee; border-left-color: #c62828;">
+            <strong>⚠️ Penalització per fallar:</strong>
+            <ul>
+                <li>Si un equip intenta endevinar la frase completa i <strong>falla</strong>, els seus punts es resetejaran a <strong>0</strong>.</li>
+                <li>Intentar una frase completa té un cost de <strong>200 punts</strong> (que es resten abans de comprovar si és correcta).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="norma-seccio">
+        <h2>3️⃣ El Tauler de Joc</h2>
+        <ul>
+            <li>Si la lletra triada apareix al panell, l'equip manté el torn.</li>
+            <li>Si la lletra no hi és, el torn passa al següent grup segons l'ordre de la classificació.</li>
+        </ul>
+    </div>
+
+    <div class="norma-seccio">
+        <h2>4️⃣ Gestió de Punts i Classificació</h2>
+        <ul>
+            <li>Tots els punts s'han d'anar actualitzant a la pàgina de "CLASSIFICACIÓ".</li>
+            <li>L'objectiu final és ser l'equip amb <strong>més paraules resoltes</strong> i <strong>més punts</strong> al final de la presentació.</li>
+            <li>La classificació s'ordena primer per paraules resoltes i després per punts.</li>
+        </ul>
+    </div>
+
+    <div class="norma-seccio">
+        <h2>5️⃣ Temps i Comportament</h2>
+        <ul>
+            <li>Cada equip té un màxim de <strong>15 segons</strong> per decidir la seva acció (girar, lletra o resoldre).</li>
+            <li>Cal respectar el torn dels altres equips.</li>
+        </ul>
+    </div>
+
+</div>
+
+<script>
+    function toggleMenu() {
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('active');
+    }
+
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('dropdownMenu');
+        const btn = document.querySelector('.hamburger-btn');
+        if (!menu.contains(event.target) && !btn.contains(event.target)) {
+            menu.classList.remove('active');
+        }
+    });
+
+    function irAPalabrasDesdeMenu(event) {
+        event.preventDefault();
+        sessionStorage.setItem('mostrarRecordatorio', 'true');
+        window.location.href = 'Palabras.html';
+    }
+</script>
+
+</body>
+</html>
