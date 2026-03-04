@@ -9,61 +9,7 @@
             background: #e8f5e9;
             margin: 0; padding: 20px;
         }
-        .nav-menu {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10000;
-        }
-        .hamburger-btn {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 40px;
-            height: 30px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-        }
-        .hamburger-btn span {
-            width: 100%;
-            height: 3px;
-            background: #2e7d32;
-            border-radius: 2px;
-            display: block;
-        }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 45px;
-            left: 0;
-            background: white;
-            border: 2px solid black;
-            border-radius: 8px;
-            min-width: 220px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
-        }
-        .dropdown-menu.active {
-            display: block;
-        }
-        .dropdown-menu a {
-            display: block;
-            padding: 12px 15px;
-            color: #2e7d32;
-            text-decoration: none;
-            font-size: 14px;
-            border-bottom: 1px solid black;
-            transition: background-color 0.3s ease;
-        }
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-        }
-        .dropdown-menu a:hover {
-            background-color: #e8f5e9;
-        }
-        
+
         h1 {
             color: #2e7d32;
             margin-bottom: 30px;
@@ -128,22 +74,6 @@
 </head>
 <body>
 
-<div class="nav-menu">
-    <button class="hamburger-btn" onclick="toggleMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-    <div class="dropdown-menu" id="dropdownMenu">
-        <a href="Principal.html">PÀGINA PRINCIPAL</a>
-        <a href="#" onclick="irAPalabrasDesdeMenu(event)">PARAULES</a>
-        <a href="Game.html">JOC (Última paraula)</a>
-        <a href="Ruleta.html">RULETA</a>
-        <a href="Clasificacion.html">CLASSIFICACIÓ</a>
-        <a href="Normas.html">NORMES</a>
-    </div>
-</div>
-
 <h1>📜 Normes de "La Ruleta de la Sostenibilitat"</h1>
 
 <div class="normes-container">
@@ -160,37 +90,43 @@
     <div class="norma-seccio">
         <h2>2️⃣ Dinàmica del Torn</h2>
         <p>El portaveu de cada grup triarà una de les tres accions següents:</p>
-        
+
         <div class="destacat">
-            <strong>A) Girar la Ruleta (Sumar Punts):</strong>
+            <strong>A) Girar la Ruleta (Multiplicador de Punts):</strong>
             <ul>
                 <li>L'equip gira la ruleta a la secció "RULETA".</li>
-                <li>El resultat de la ruleta indica quants punts guanyarà l'equip si encerta la següent lletra al panell de joc.</li>
+                <li>El número que surti de la ruleta NO s'afegeix directament al marcador. Actua com a <strong>MULTIPLICADOR</strong> per a la següent lletra que intenti l'equip.</li>
+                <li>Si l'equip encerta la lletra al panell, guanyarà: <strong>multiplicador × nombre de vegades que apareix la lletra = punts guanyats</strong>.</li>
+                <li>Exemple: ruleta cau en 500 i la lletra "S" apareix 3 vegades → +1.500 punts.</li>
+                <li>El multiplicador s'esgota després d'un intent de lletra (tant si encerta com si falla).</li>
             </ul>
         </div>
-        
+
         <div class="caselles-especials">
             <strong>Caselles especials de la ruleta:</strong>
             <ul>
-                <li><strong>Quiebra:</strong> L'equip perd tots els punts acumulats i passa el torn.</li>
-                <li><strong>Pierdes turno:</strong> L'equip no pot jugar en aquesta ronda.</li>
+                <li><strong>Quiebra:</strong> L'equip perd TOTS els punts acumulats, el multiplicador s'anul·la i passa el torn.</li>
+                <li><strong>Pierdes turno:</strong> El multiplicador s'anul·la i el torn passa al següent equip. L'equip no perd els punts que ja tenia acumulats.</li>
             </ul>
         </div>
-        
+
         <div class="destacat" style="background: #e3f2fd; border-left-color: #2196F3;">
-            <strong>B) Intentar Lletra (Cost Fix):</strong>
+            <strong>B) Intentar Lletra sense Ruleta (Cost Fix):</strong>
             <ul>
-                <li>Si l'equip no vol arriscar-se amb la ruleta, pot anar directament a "JOC" i intentar una lletra.</li>
-                <li>Cada intent de lletra té un cost de <strong>50 punts</strong> (es resten automàticament del marcador).</li>
+                <li>Si l'equip no vol girar la ruleta, pot anar directament a "JOC" i intentar una lletra.</li>
+                <li>Cada intent té un cost fix de <strong>50 punts</strong> (es resten automàticament del marcador).</li>
+                <li>En aquest cas no hi ha multiplicador: si encerta, simplement no perd els 50 punts i la lletra queda revelada.</li>
             </ul>
         </div>
-        
+
         <div class="destacat" style="background: #f3e5f5; border-left-color: #9c27b0;">
             <strong>C) Resoldre el Panell:</strong>
             <ul>
                 <li>En qualsevol moment, l'equip pot intentar dir la frase completa.</li>
-                <li>Si l'encerten, reben una bonificació especial i es marquen com a guanyadors de la ronda a la classificació.</li>
-                <li><strong>Cost: 200 punts.</strong></li>
+                <li><strong>Cost: 200 punts</strong> (es resten automàticament abans de comprovar la resposta).</li>
+                <li>Si l'encerten: la frase queda resolta i es comptabilitza com a paraula guanyada a la classificació.</li>
+                <li>Si fallen: els seus punts es resetegen a 0 i la frase es revela automàticament.</li>
+                <li>Atenció: no hi ha bonificació extra per resoldre, el benefici és no haver de continuar gastant punts en lletres.</li>
             </ul>
         </div>
 
@@ -201,14 +137,15 @@
                 <li>La pista apareixerà en un quadre groc a la part superior de la pantalla.</li>
                 <li>El cost de la pista és de <strong>100 punts</strong>.</li>
                 <li><strong>Només es pot demanar una pista per paraula!</strong></li>
+                <li>La pista es mostra en un requadre groc a la part superior de la pantalla i es manté visible fins que es canvia de paraula.</li>
             </ul>
         </div>
 
         <div class="caselles-especials" style="background: #ffebee; border-left-color: #c62828;">
-            <strong>⚠️ Penalització per fallar:</strong>
+            <strong>⚠️ Penalització per fallar la frase completa:</strong>
             <ul>
-                <li>Si un equip intenta endevinar la frase completa i <strong>falla</strong>, els seus punts es resetejaran a <strong>0</strong>.</li>
-                <li>Intentar una frase completa té un cost de <strong>200 punts</strong> (que es resten abans de comprovar si és correcta).</li>
+                <li>Si un equip intenta endevinar la frase completa i falla, els seus punts es resetejaran a <strong>0</strong>.</li>
+                <li>El cost de 200 punts ja s'ha restat abans de comprovar la resposta, per tant si falla, queda a 0 independentment dels punts que tingués.</li>
             </ul>
         </div>
     </div>
@@ -216,50 +153,48 @@
     <div class="norma-seccio">
         <h2>3️⃣ El Tauler de Joc</h2>
         <ul>
-            <li>Si la lletra triada apareix al panell, l'equip manté el torn.</li>
-            <li>Si la lletra no hi és, el torn passa al següent grup segons l'ordre de la classificació.</li>
+            <li>Si la lletra triada apareix al panell, l'equip manté el torn i guanya els punts corresponents (multiplicador × vegades que apareix la lletra).</li>
+            <li>Si la lletra no hi és, el multiplicador es perd i el torn passa al següent grup.</li>
+            <li>Les lletres ja intentades apareixen marcades al teclat visual de la pantalla (verdes si estaven, vermelles si no estaven).</li>
         </ul>
     </div>
 
     <div class="norma-seccio">
         <h2>4️⃣ Gestió de Punts i Classificació</h2>
         <ul>
-            <li>Tots els punts s'han d'anar actualitzant a la pàgina de "CLASSIFICACIÓ".</li>
-            <li>L'objectiu final és ser l'equip amb <strong>més paraules resoltes</strong> i <strong>més punts</strong> al final de la presentació.</li>
+            <li>Els punts s'actualitzen automàticament a la pàgina de "CLASSIFICACIÓ" a mesura que es juguen les rondes.</li>
+            <li>L'objectiu final és ser l'equip amb més paraules resoltes i més punts al final de totes les rondes.</li>
             <li>La classificació s'ordena primer per paraules resoltes i després per punts.</li>
+            <li>El professor pot consultar i gestionar els equips des de la secció "CLASSIFICACIÓ" en qualsevol moment.</li>
         </ul>
     </div>
 
     <div class="norma-seccio">
         <h2>5️⃣ Temps i Comportament</h2>
         <ul>
-            <li>Cada equip té un màxim de <strong>15 segons</strong> per decidir la seva acció (girar, lletra o resoldre).</li>
-            <li>Cal respectar el torn dels altres equips.</li>
+            <li>Cada equip té un màxim de <strong>15 segons</strong> per decidir la seva acció. El cronòmetre és visible a la pantalla de "JOC" i ha de ser iniciat pel professor en cada torn.</li>
+            <li>Si el temps s'esgota, el torn passa automàticament al següent equip.</li>
+            <li>Cal respectar el torn dels altres equips i no dir lletres en veu alta quan no és el teu torn.</li>
         </ul>
+    </div>
+
+    <div class="norma-seccio">
+        <h2>6️⃣ Resum Visual del Flux d'un Torn</h2>
+        <ol>
+            <li>El professor selecciona la paraula a endevinar a "PARAULES".</li>
+            <li>L'equip actiu decideix: girar ruleta o intentar lletra amb cost fix.</li>
+            <li>Si gira la ruleta → va a "JOC" i intenta una lletra. Els punts es calculen automàticament: multiplicador × aparicions.</li>
+            <li>Si encerta → manté el torn i pot tornar a girar o intentar resoldre.</li>
+            <li>Si falla → perd el multiplicador i passa el torn.</li>
+            <li>Qualsevol equip pot intentar resoldre la frase completa en el seu torn pagant 200 punts.</li>
+            <li>Quan la frase es resol, el professor selecciona una nova paraula i s'inicia una nova ronda.</li>
+        </ol>
     </div>
 
 </div>
 
 <script>
-    function toggleMenu() {
-        const menu = document.getElementById('dropdownMenu');
-        menu.classList.toggle('active');
-    }
-
-    document.addEventListener('click', function(event) {
-        const menu = document.getElementById('dropdownMenu');
-        const btn = document.querySelector('.hamburger-btn');
-        if (!menu.contains(event.target) && !btn.contains(event.target)) {
-            menu.classList.remove('active');
-        }
-    });
-
-    function irAPalabrasDesdeMenu(event) {
-        event.preventDefault();
-        sessionStorage.setItem('mostrarRecordatorio', 'true');
-        window.location.href = 'Palabras.html';
-    }
-</script>
-
+    </script>
+    <script src="menu.js"></script>
 </body>
 </html>

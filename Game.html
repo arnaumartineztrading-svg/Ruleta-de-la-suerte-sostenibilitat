@@ -129,62 +129,6 @@
             color: #ffcccc;
         }
 
-        /* Menú hamburguesa */
-        .nav-menu {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10001;
-        }
-        .hamburger-btn {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 40px;
-            height: 30px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-        }
-        .hamburger-btn span {
-            width: 100%;
-            height: 3px;
-            background: #2e7d32;
-            border-radius: 2px;
-            display: block;
-        }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 45px;
-            left: 0;
-            background: white;
-            border: 2px solid black;
-            border-radius: 8px;
-            min-width: 220px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 10000;
-        }
-        .dropdown-menu.active {
-            display: block;
-        }
-        .dropdown-menu a {
-            display: block;
-            padding: 12px 15px;
-            color: #2e7d32;
-            text-decoration: none;
-            font-size: 14px;
-            border-bottom: 1px solid black;
-            transition: background-color 0.3s ease;
-        }
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-        }
-        .dropdown-menu a:hover {
-            background-color: #e8f5e9;
-        }
-
         /* Animación de vibración */
         @keyframes vibrar {
             0%, 100% { transform: translateX(0); }
@@ -326,6 +270,23 @@
         #overlay-recordatorio-equip.actiu {
             display:flex;
         }
+
+        /* Animación de puntos flotantes */
+        .float-points {
+            position: fixed;
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffeb3b;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp 1.4s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0%   { opacity: 1; transform: translateY(0) scale(1); }
+            60%  { opacity: 1; transform: translateY(-60px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0.9); }
+        }
     </style>
 </head>
 <body>
@@ -339,22 +300,6 @@
             <button onclick="window.location.href='Clasificacion.html'" style="background:#2e7d32; color:white; padding:10px 16px; border-radius:8px; border:none; font-size:16px; cursor:pointer;">Anar a Classificació</button>
             <button onclick="document.getElementById('overlay-recordatorio-equip').classList.remove('actiu');" style="background:#ccc; color:#111; padding:10px 16px; border-radius:8px; border:none; font-size:16px; cursor:pointer; margin-left:8px;">Cancel·lar</button>
         </div>
-    </div>
-</div>
-
-<div class="nav-menu">
-    <button class="hamburger-btn" onclick="toggleMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-    <div class="dropdown-menu" id="dropdownMenu">
-        <a href="Principal.html">PÀGINA PRINCIPAL</a>
-        <a href="#" onclick="irAPalabrasDesdeMenu(event)">PARAULES</a>
-        <a href="#" onclick="irAGameDesdeMenu(event)">JOC (Última paraula)</a>
-        <a href="#" onclick="irARuletaDesdeMenu(event)">RULETA</a>
-        <a href="Clasificacion.html">CLASSIFICACIÓ</a>
-        <a href="Normas.html">NORMES</a>
     </div>
 </div>
 
@@ -551,15 +496,23 @@
             return;
         }
 
-        const puntsActuals = obtenirPunts();
-        if (puntsActuals < 50) {
-            mostrarErrorTemporal("No tens prou punts! (Cost: 50)");
-            input.value = "";
-            return;
-        }
+        // Llegir multiplicador de la ruleta
+        const multiplicador = parseInt(sessionStorage.getItem('multiplicadorTorn') || '0');
+        const panelJoc = document.getElementById('panel-joc-container');
 
-        // Restar 50 punts
-        establirPunts(puntsActuals - 50);
+        const puntsActuals = obtenirPunts();
+
+        // Si multiplicador === 0: restar 50 punts fijos (opción sin ruleta)
+        if (multiplicador === 0) {
+            if (puntsActuals < 50) {
+                mostrarErrorTemporal("No tens prou punts! (Cost: 50)");
+                input.value = "";
+                return;
+            }
+            // Restar 50 punts
+            establirPunts(puntsActuals - 50);
+        }
+        // Si multiplicador > 0: NO restar nada
 
         const caselles = document.querySelectorAll('.letter-box');
         let found = false;
@@ -569,7 +522,7 @@
                 c.classList.add('visible');
                 c.innerText = lletra;
                 found = true;
-                
+
                 // Guardar la lletra revelada
                 if (!lletresRevelades.includes(lletra)) {
                     lletresRevelades.push(lletra);
@@ -582,9 +535,27 @@
             mostrarErrorTemporal("La lletra no està a la frase.");
             // So de lletra fallada
             playSound(wrongLetterSound);
+            // El multiplicador se pierde
+            sessionStorage.setItem('multiplicadorTorn', '0');
         } else {
             // So de lletra encertada
             playSound(correctLetterSound);
+
+            // Si la lletra està a la frase, calcular punts
+            const vegades = fraseLogica.split('').filter(c => c === lletra).length;
+
+            if (multiplicador > 0) {
+                // Sumar (multiplicador × vegades) al score de l'equip
+                const puntsAGuanyar = multiplicador * vegades;
+                establirPunts(puntsActuals + puntsAGuanyar);
+
+                // Mostrar animació de punts flotants
+                showFloatingPoints(puntsAGuanyar, panelJoc);
+
+                // Posar multiplicador a '0' després de sumar
+                sessionStorage.setItem('multiplicadorTorn', '0');
+            }
+            // Si multiplicador === 0, ja hem restat els 50 punts abans
         }
 
         input.value = "";
@@ -593,6 +564,22 @@
         if (comprovarGuanyat()) {
             mostrarMissatgeAcertat();
         }
+    }
+
+    function showFloatingPoints(points, originEl) {
+        const floatEl = document.createElement('div');
+        floatEl.className = 'float-points';
+        floatEl.textContent = '+' + points + ' pts';
+
+        const rect = originEl.getBoundingClientRect();
+        floatEl.style.left = (rect.left + rect.width / 2 - 40) + 'px';
+        floatEl.style.top = (rect.top) + 'px';
+
+        document.body.appendChild(floatEl);
+
+        floatEl.addEventListener('animationend', () => {
+            floatEl.remove();
+        });
     }
 
     function mostrarErrorTemporal(mensaje) {
@@ -801,20 +788,6 @@
         document.getElementById('btn-pista').disabled = true;
     }
 
-    function toggleMenu() {
-        const menu = document.getElementById('dropdownMenu');
-        menu.classList.toggle('active');
-    }
-
-    // Cerrar menú si se hace click fuera de él
-    document.addEventListener('click', function(event) {
-        const menu = document.getElementById('dropdownMenu');
-        const btn = document.querySelector('.hamburger-btn');
-        if (!menu.contains(event.target) && !btn.contains(event.target)) {
-            menu.classList.remove('active');
-        }
-    });
-
     // Comprovar si hi ha equips afegits en carregar
     function checkEquips(){
         const equips = JSON.parse(localStorage.getItem('equips')) || [];
@@ -822,37 +795,10 @@
             document.getElementById('overlay-recordatorio-equip').classList.add('actiu');
         }
     }
-    
+
     // Executar comprovació en carregar
     checkEquips();
-
-    function irAPalabrasDesdeMenu(event) {
-        event.preventDefault();
-        const equips = JSON.parse(localStorage.getItem('equips')) || [];
-        if(equips.length === 0){
-            document.getElementById('overlay-recordatorio-equip').classList.add('actiu');
-            return;
-        }
-        sessionStorage.setItem('mostrarRecordatorio', 'true');
-        window.location.href = 'Palabras.html';
-    }
-
-    function irAGameDesdeMenu(event){
-        event.preventDefault();
-        // Ja estem a Game.html, no cal redirigir
-    }
-
-    function irARuletaDesdeMenu(event){
-        event.preventDefault();
-        const equips = JSON.parse(localStorage.getItem('equips')) || [];
-        if(equips.length === 0){
-            document.getElementById('overlay-recordatorio-equip').classList.add('actiu');
-            return;
-        }
-        sessionStorage.setItem('mostrarRecordatorioRuleta','true');
-        window.location.href='Ruleta.html';
-    }
-</script>
-
+    </script>
+    <script src="menu.js"></script>
 </body>
 </html>
