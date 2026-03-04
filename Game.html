@@ -270,23 +270,6 @@
         #overlay-recordatorio-equip.actiu {
             display:flex;
         }
-
-        /* Animación de puntos flotantes */
-        .float-points {
-            position: fixed;
-            font-size: 28px;
-            font-weight: 900;
-            color: #ffeb3b;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            pointer-events: none;
-            z-index: 9999;
-            animation: floatUp 1.4s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0%   { opacity: 1; transform: translateY(0) scale(1); }
-            60%  { opacity: 1; transform: translateY(-60px) scale(1.2); }
-            100% { opacity: 0; transform: translateY(-100px) scale(0.9); }
-        }
     </style>
 </head>
 <body>
@@ -323,16 +306,16 @@
     <div style="margin-bottom: 10px; position: relative; display: flex; justify-content: center; align-items: center; gap: 10px;">
         <div id="mensaje-error-letra"></div>
         <input type="text" id="input-letra" maxlength="1" placeholder="?" autofocus autocomplete="off">
-        <button onclick="comprovarLetra()">Intentar Lletra (Cost: 50)</button>
+        <button onclick="comprovarLetra()">Intentar Lletra (-50)</button>
     </div>
     <div style="position: relative; margin-bottom: 55px;">
         <input type="text" id="input-frase" placeholder="Introdueix la frase o paraula" autocomplete="off">
-        <button id="btn-intentar-frase" onclick="intentarFrase()">Intentar Frase (Cost: 200)</button>
+        <button id="btn-intentar-frase" onclick="intentarFrase()">Intentar Frase (-200)</button>
         <div id="mensaje-error-frase"></div>
     </div>
     <div style="text-align: center;">
         <button onclick="resoldre()">Resoldre!</button>
-        <button id="btn-pista" onclick="mostrarPista()">Pista (Cost: 100)</button>
+        <button id="btn-pista" onclick="mostrarPista()">Pista (-100)</button>
     </div>
 </div>
 
@@ -509,9 +492,6 @@
             return;
         }
 
-        // Llegir multiplicador de la ruleta
-        let multiplicador = parseInt(sessionStorage.getItem('multiplicadorTorn') || '0');
-
         // Validar que l'equip seleccionat és correcte
         equips = JSON.parse(localStorage.getItem('equips')) || [];
         let equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
@@ -520,11 +500,19 @@
             equipSeleccionat = 0;
         }
 
-        const panelJoc = document.getElementById('panel-joc-container');
+        // Obtenir punts actualitzats directament de localStorage
+        const equipsActuals = JSON.parse(localStorage.getItem('equips')) || [];
+        const puntsActuals = equipsActuals[equipSeleccionat]?.punts || 0;
+
+        // Verificar si té prou punts per comprar la lletra (50 pts)
+        if (puntsActuals < 50) {
+            mostrarErrorTemporal("No tens prou punts! (Cost: 50)");
+            input.value = "";
+            return;
+        }
 
         const caselles = document.querySelectorAll('.letter-box');
         let found = false;
-        let vegades = 0;
 
         // Primer, comprovar si la lletra està a la frase
         caselles.forEach(c => {
@@ -533,7 +521,6 @@
                 c.classList.add('visible');
                 c.innerText = lletra;
                 found = true;
-                vegades++;
 
                 // Guardar la lletra revelada
                 if (!lletresRevelades.includes(lletra)) {
@@ -543,47 +530,18 @@
             }
         });
 
-        // Obtenir punts actualitzats directament de localStorage
-        const equipsActuals = JSON.parse(localStorage.getItem('equips')) || [];
-        const puntsActuals = equipsActuals[equipSeleccionat]?.punts || 0;
+        // Restar 50 punts per comprar la lletra
+        equipsActuals[equipSeleccionat].punts = puntsActuals - 50;
+        localStorage.setItem('equips', JSON.stringify(equipsActuals));
+        actualitzarPuntsVisibles();
 
         if (!found) {
             // La lletra NO està a la frase
-            if (multiplicador === 0) {
-                // Restar 50 punts per intent fallit sense ruleta
-                if (puntsActuals >= 50) {
-                    equipsActuals[equipSeleccionat].punts = puntsActuals - 50;
-                    localStorage.setItem('equips', JSON.stringify(equipsActuals));
-                    actualitzarPuntsVisibles();
-                } else {
-                    mostrarErrorTemporal("No tens prou punts! (Cost: 50)");
-                    input.value = "";
-                    return;
-                }
-            }
-            // Si multiplicador > 0, simplement es perd el multiplicador (no es resten punts)
             mostrarErrorTemporal("La lletra no està a la frase.");
             playSound(wrongLetterSound);
-            sessionStorage.setItem('multiplicadorTorn', '0');
         } else {
             // La lletra SÍ està a la frase
             playSound(correctLetterSound);
-
-            if (multiplicador > 0) {
-                // Sumar (multiplicador × vegades) al score de l'equip
-                const puntsAGuanyar = multiplicador * vegades;
-                const nousPunts = puntsActuals + puntsAGuanyar;
-                equipsActuals[equipSeleccionat].punts = nousPunts;
-                localStorage.setItem('equips', JSON.stringify(equipsActuals));
-                actualitzarPuntsVisibles();
-
-                // Mostrar animació de punts flotants
-                showFloatingPoints(puntsAGuanyar, panelJoc);
-            }
-            // Si multiplicador === 0, no es suma ni es resta res (només revela la lletra)
-
-            // El multiplicador s'esgota després de qualsevol encert
-            sessionStorage.setItem('multiplicadorTorn', '0');
         }
 
         input.value = "";
@@ -592,22 +550,6 @@
         if (comprovarGuanyat()) {
             mostrarMissatgeAcertat();
         }
-    }
-
-    function showFloatingPoints(points, originEl) {
-        const floatEl = document.createElement('div');
-        floatEl.className = 'float-points';
-        floatEl.textContent = '+' + points + ' pts';
-
-        const rect = originEl.getBoundingClientRect();
-        floatEl.style.left = (rect.left + rect.width / 2 - 40) + 'px';
-        floatEl.style.top = (rect.top) + 'px';
-
-        document.body.appendChild(floatEl);
-
-        floatEl.addEventListener('animationend', () => {
-            floatEl.remove();
-        });
     }
 
     function mostrarErrorTemporal(mensaje) {
@@ -760,13 +702,14 @@
         // Llegir equip seleccionat i punts actuals directament de localStorage
         const equipsActuals = JSON.parse(localStorage.getItem('equips')) || [];
         let equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
-        
+
         if (equipSeleccionat >= equipsActuals.length) {
             equipSeleccionat = 0;
         }
-        
+
         const puntsActuals = equipsActuals[equipSeleccionat]?.punts || 0;
-        
+
+        // Verificar si té prou punts per intentar la frase (200 pts)
         if (puntsActuals < 200) {
             mostrarErrorTemporalFrase("No tens prou punts! (Cost: 200)");
             return;
@@ -810,13 +753,14 @@
         // Llegir equip seleccionat i punts actuals directament de localStorage
         const equipsActuals = JSON.parse(localStorage.getItem('equips')) || [];
         let equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
-        
+
         if (equipSeleccionat >= equipsActuals.length) {
             equipSeleccionat = 0;
         }
-        
+
         const puntsActuals = equipsActuals[equipSeleccionat]?.punts || 0;
-        
+
+        // Verificar si té prou punts per comprar la pista (100 pts)
         if (puntsActuals < 100) {
             mostrarErrorTemporalFrase("No tens prou punts! (Cost: 100)");
             return;

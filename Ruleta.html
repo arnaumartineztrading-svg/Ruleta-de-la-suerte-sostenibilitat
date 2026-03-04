@@ -651,31 +651,30 @@
         }
 
         function handleResult(prize){
-            // Apply game effects but display only the cell value in the result box.
-            // If prize is numeric, show with a plus sign (e.g. +100). Otherwise show the label (e.g. Quiebra).
+            // Apply game effects and display the result.
             if(prize==="Quiebra"){
                 players[currentPlayer].score=0;
                 persistPlayers();
-                sessionStorage.setItem('multiplicadorTorn', '0');
                 sessionStorage.setItem('equipSeleccionat', currentPlayer.toString());
                 nextPlayer();
                 // So dolent - perdre punts
                 playSound(badResultSound);
             }
             else if(prize==="Pierdes turno"){
-                sessionStorage.setItem('multiplicadorTorn', '0');
                 sessionStorage.setItem('equipSeleccionat', currentPlayer.toString());
                 nextPlayer();
                 // So dolent - perdre torn
                 playSound(badResultSound);
             }
             else if(/^\d+$/.test(prize)){
-                // Numeric prize: guardar multiplicador a sessionStorage (no sumar ací)
+                // Numeric prize: sumar punts directament a l'equip actual
                 const points = parseInt(prize);
-                sessionStorage.setItem('multiplicadorTorn', points.toString());
+                players[currentPlayer].score += points;
+                persistPlayers();
                 sessionStorage.setItem('equipSeleccionat', currentPlayer.toString());
                 // So bo - guanyar punts
                 playSound(goodResultSound);
+                // El jugador manté el torn (no es crida nextPlayer())
             }
 
             // Save updated scores to localStorage so Game.html can access them
