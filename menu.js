@@ -130,9 +130,14 @@
     if (menuGame) {
         menuGame.addEventListener('click', function(event) {
             event.preventDefault();
-            // Si existeix la variable currentPlayer en el scope global (estem a Ruleta.html)
-            if (typeof currentPlayer !== 'undefined') {
-                sessionStorage.setItem('equipSeleccionat', currentPlayer.toString());
+            // Si estem a Ruleta.html, guardar l'equip actual
+            // currentPlayer és una variable global de Ruleta.html
+            try {
+                if (typeof currentPlayer !== 'undefined' && currentPlayer !== null) {
+                    sessionStorage.setItem('equipSeleccionat', currentPlayer.toString());
+                }
+            } catch (e) {
+                // Si no estem a Ruleta.html, no fem res
             }
             window.location.href = 'Game.html';
         });

@@ -378,11 +378,20 @@
 
         function persistPlayers(){
             // Actualiza los punts en localStorage para que los cambios de puntuación persistan
+            // Utilitzem l'índex per sincronitzar, ja que l'ordre es manté
             const stored = JSON.parse(localStorage.getItem('equips')) || [];
-            players.forEach(p => {
-                const idx = stored.findIndex(s => s.nom === p.name);
-                if(idx >= 0){
-                    stored[idx].punts = p.score;
+            
+            // Sincronitzar per índex i per nom com a fallback
+            players.forEach((p, i) => {
+                // Primer intentar per índex
+                if (stored[i]) {
+                    stored[i].punts = p.score;
+                } else {
+                    // Fallback: buscar per nom
+                    const idx = stored.findIndex(s => s.nom === p.name);
+                    if(idx >= 0){
+                        stored[idx].punts = p.score;
+                    }
                 }
             });
             localStorage.setItem('equips', JSON.stringify(stored));

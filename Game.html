@@ -393,21 +393,22 @@
     function actualitzarSelectorEquips() {
         equips = JSON.parse(localStorage.getItem('equips')) || [];
         selectorEquip.innerHTML = '';
-        
+
         if (equips.length === 0) {
             selectorEquip.innerHTML = '<option value="">Cap equip</option>';
             puntsEquipSpan.textContent = '';
             return;
         }
-        
+
         equips.forEach((equip, index) => {
             const option = document.createElement('option');
             option.value = index;
             option.textContent = equip.nom;
             selectorEquip.appendChild(option);
         });
-        
-        // Seleccionar el primer equip per defecte
+
+        // Seleccionar l'equip guardat o el primer per defecte
+        equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
         if (equipSeleccionat >= equips.length) {
             equipSeleccionat = 0;
         }
@@ -417,19 +418,22 @@
 
     // Funció per actualitzar els punts visibles
     function actualitzarPuntsVisibles() {
+        equips = JSON.parse(localStorage.getItem('equips')) || [];
         if (equips.length > 0) {
             puntsEquipSpan.textContent = equips[equipSeleccionat].punts + ' punts';
         }
     }
 
-    // Funció per obtenir els punts de l'equip seleccionat
+    // Funció per obtenir els punts de l'equip seleccionat (sempre des de localStorage)
     function obtenirPunts() {
+        equips = JSON.parse(localStorage.getItem('equips')) || [];
         if (equips.length === 0) return 0;
         return equips[equipSeleccionat].punts || 0;
     }
 
-    // Funció per establir els punts de l'equip seleccionat
+    // Funció per establir els punts de l'equip seleccionat (guarda immediatament a localStorage)
     function establirPunts(nousPunts) {
+        equips = JSON.parse(localStorage.getItem('equips')) || [];
         if (equips.length === 0) return;
         equips[equipSeleccionat].punts = nousPunts;
         localStorage.setItem('equips', JSON.stringify(equips));
@@ -439,6 +443,7 @@
     // Event listener per quan es canvia d'equip
     selectorEquip.addEventListener('change', function() {
         equipSeleccionat = parseInt(this.value);
+        sessionStorage.setItem('equipSeleccionat', equipSeleccionat.toString());
         actualitzarPuntsVisibles();
     });
 
@@ -454,6 +459,14 @@
     window.addEventListener('focus', function() {
         equips = JSON.parse(localStorage.getItem('equips')) || [];
         actualitzarSelectorEquips();
+    });
+
+    // Actualitzar també quan es torna visible la pestanya
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            equips = JSON.parse(localStorage.getItem('equips')) || [];
+            actualitzarSelectorEquips();
+        }
     });
 
     // Inicialitzar el selector d'equips
@@ -497,31 +510,30 @@
         }
 
         // Llegir multiplicador de la ruleta
-        const multiplicador = parseInt(sessionStorage.getItem('multiplicadorTorn') || '0');
-        const panelJoc = document.getElementById('panel-joc-container');
+        let multiplicador = parseInt(sessionStorage.getItem('multiplicadorTorn') || '0');
 
-        const puntsActuals = obtenirPunts();
+        // Validar que l'equip seleccionat és correcte
+        equips = JSON.parse(localStorage.getItem('equips')) || [];
+        let equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
 
-        // Si multiplicador === 0: restar 50 punts fijos (opción sin ruleta)
-        if (multiplicador === 0) {
-            if (puntsActuals < 50) {
-                mostrarErrorTemporal("No tens prou punts! (Cost: 50)");
-                input.value = "";
-                return;
-            }
-            // Restar 50 punts
-            establirPunts(puntsActuals - 50);
+        if (equipSeleccionat >= equips.length) {
+            equipSeleccionat = 0;
         }
-        // Si multiplicador > 0: NO restar nada
+
+        const panelJoc = document.getElementById('panel-joc-container');
 
         const caselles = document.querySelectorAll('.letter-box');
         let found = false;
+        let vegades = 0;
+
+        // Primer, comprovar si la lletra està a la frase
         caselles.forEach(c => {
             if (c.dataset.lletra === lletra) {
                 c.classList.remove('hidden');
                 c.classList.add('visible');
                 c.innerText = lletra;
                 found = true;
+                vegades++;
 
                 // Guardar la lletra revelada
                 if (!lletresRevelades.includes(lletra)) {
@@ -531,31 +543,47 @@
             }
         });
 
+        // Obtenir punts actualitzats directament de localStorage
+        const equipsActuals = JSON.parse(localStorage.getItem('equips')) || [];
+        const puntsActuals = equipsActuals[equipSeleccionat]?.punts || 0;
+
         if (!found) {
+            // La lletra NO està a la frase
+            if (multiplicador === 0) {
+                // Restar 50 punts per intent fallit sense ruleta
+                if (puntsActuals >= 50) {
+                    equipsActuals[equipSeleccionat].punts = puntsActuals - 50;
+                    localStorage.setItem('equips', JSON.stringify(equipsActuals));
+                    actualitzarPuntsVisibles();
+                } else {
+                    mostrarErrorTemporal("No tens prou punts! (Cost: 50)");
+                    input.value = "";
+                    return;
+                }
+            }
+            // Si multiplicador > 0, simplement es perd el multiplicador (no es resten punts)
             mostrarErrorTemporal("La lletra no està a la frase.");
-            // So de lletra fallada
             playSound(wrongLetterSound);
-            // El multiplicador se pierde
             sessionStorage.setItem('multiplicadorTorn', '0');
         } else {
-            // So de lletra encertada
+            // La lletra SÍ està a la frase
             playSound(correctLetterSound);
-
-            // Si la lletra està a la frase, calcular punts
-            const vegades = fraseLogica.split('').filter(c => c === lletra).length;
 
             if (multiplicador > 0) {
                 // Sumar (multiplicador × vegades) al score de l'equip
                 const puntsAGuanyar = multiplicador * vegades;
-                establirPunts(puntsActuals + puntsAGuanyar);
+                const nousPunts = puntsActuals + puntsAGuanyar;
+                equipsActuals[equipSeleccionat].punts = nousPunts;
+                localStorage.setItem('equips', JSON.stringify(equipsActuals));
+                actualitzarPuntsVisibles();
 
                 // Mostrar animació de punts flotants
                 showFloatingPoints(puntsAGuanyar, panelJoc);
-
-                // Posar multiplicador a '0' després de sumar
-                sessionStorage.setItem('multiplicadorTorn', '0');
             }
-            // Si multiplicador === 0, ja hem restat els 50 punts abans
+            // Si multiplicador === 0, no es suma ni es resta res (només revela la lletra)
+
+            // El multiplicador s'esgota després de qualsevol encert
+            sessionStorage.setItem('multiplicadorTorn', '0');
         }
 
         input.value = "";
@@ -620,29 +648,27 @@
 
     // Funció per guardar la paraula a l'equip seleccionat
     function guardarParaulaPerEquip() {
-        if (equips.length === 0) return;
-        
         // Actualitzar la llista d'equips des de localStorage
         const equipsActualitzats = JSON.parse(localStorage.getItem('equips')) || [];
         
-        // Trobar l'equip seleccionat
-        const equipIndex = equipsActualitzats.findIndex(e => e.nom === equips[equipSeleccionat].nom);
+        if (equipsActualitzats.length === 0) return;
         
-        if (equipIndex >= 0) {
-            // Afegir la paraula si no hi és ja
-            if (!equipsActualitzats[equipIndex].paraules) {
-                equipsActualitzats[equipIndex].paraules = [];
-            }
-            if (!equipsActualitzats[equipIndex].paraules.includes(fraseLogica)) {
-                equipsActualitzats[equipIndex].paraules.push(fraseLogica);
-                equipsActualitzats[equipIndex].paraulesResoltes = equipsActualitzats[equipIndex].paraules.length;
-            }
-            localStorage.setItem('equips', JSON.stringify(equipsActualitzats));
-            
-            // Actualitzar la referència local
-            equips[equipSeleccionat].paraules = equipsActualitzats[equipIndex].paraules;
-            equips[equipSeleccionat].paraulesResoltes = equipsActualitzats[equipIndex].paraulesResoltes;
+        // Trobar l'equip seleccionat des de sessionStorage
+        let equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
+        
+        if (equipSeleccionat >= equipsActualitzats.length) {
+            equipSeleccionat = 0;
         }
+
+        // Afegir la paraula si no hi és ja
+        if (!equipsActualitzats[equipSeleccionat].paraules) {
+            equipsActualitzats[equipSeleccionat].paraules = [];
+        }
+        if (!equipsActualitzats[equipSeleccionat].paraules.includes(fraseLogica)) {
+            equipsActualitzats[equipSeleccionat].paraules.push(fraseLogica);
+            equipsActualitzats[equipSeleccionat].paraulesResoltes = equipsActualitzats[equipSeleccionat].paraules.length;
+        }
+        localStorage.setItem('equips', JSON.stringify(equipsActualitzats));
     }
 
     function resoldre() {
@@ -731,21 +757,34 @@
             return;
         }
 
-        const puntsActuals = obtenirPunts();
+        // Llegir equip seleccionat i punts actuals directament de localStorage
+        const equipsActuals = JSON.parse(localStorage.getItem('equips')) || [];
+        let equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
+        
+        if (equipSeleccionat >= equipsActuals.length) {
+            equipSeleccionat = 0;
+        }
+        
+        const puntsActuals = equipsActuals[equipSeleccionat]?.punts || 0;
+        
         if (puntsActuals < 200) {
             mostrarErrorTemporalFrase("No tens prou punts! (Cost: 200)");
             return;
         }
 
         // Restar 200 punts per intentar endevinar la frase completa
-        establirPunts(puntsActuals - 200);
+        equipsActuals[equipSeleccionat].punts = puntsActuals - 200;
+        localStorage.setItem('equips', JSON.stringify(equipsActuals));
+        actualitzarPuntsVisibles();
 
         if (fraseIntroduida === fraseLogica) {
             guardarParaulaPerEquip();
             mostrarMissatgeAcertat();
         } else {
             // Penalització: resetejar punts a 0 per fallar la frase
-            establirPunts(0);
+            equipsActuals[equipSeleccionat].punts = 0;
+            localStorage.setItem('equips', JSON.stringify(equipsActuals));
+            actualitzarPuntsVisibles();
             revelarFrase();
             setTimeout(() => {
                 mostrarMissatgeFallat();
@@ -768,14 +807,25 @@
             return;
         }
 
-        const puntsActuals = obtenirPunts();
+        // Llegir equip seleccionat i punts actuals directament de localStorage
+        const equipsActuals = JSON.parse(localStorage.getItem('equips')) || [];
+        let equipSeleccionat = parseInt(sessionStorage.getItem('equipSeleccionat')) || 0;
+        
+        if (equipSeleccionat >= equipsActuals.length) {
+            equipSeleccionat = 0;
+        }
+        
+        const puntsActuals = equipsActuals[equipSeleccionat]?.punts || 0;
+        
         if (puntsActuals < 100) {
             mostrarErrorTemporalFrase("No tens prou punts! (Cost: 100)");
             return;
         }
 
         // Restar 100 punts per la pista
-        establirPunts(puntsActuals - 100);
+        equipsActuals[equipSeleccionat].punts = puntsActuals - 100;
+        localStorage.setItem('equips', JSON.stringify(equipsActuals));
+        actualitzarPuntsVisibles();
 
         // Mostrar la pista
         const pistaContainer = document.getElementById('pista-container');
